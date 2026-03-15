@@ -209,7 +209,7 @@ void execute(chip8 *c){
             // Ogni riga è letta a partire da I
             // I alla fine dell'istruzione non viene toccato
             // VF va a 1 se viene flippato qualche pixel durante questa operazione
-            display(c, VX,VY, last_nibble);
+            draw_sprite(c, VX,VY, last_nibble);
         break;
         
         case 0xE000:
@@ -381,7 +381,7 @@ void rand_vx(chip8 *c, unsigned char vx, unsigned short value){
 }
 
 // Gruppo D
-void display(chip8 *c, unsigned char vx, unsigned char vy, unsigned char n){
+void draw_sprite(chip8 *c, unsigned char vx, unsigned char vy, unsigned char n){
     for(int i = 0; i < n; i++){
         const unsigned char buffer = c->memory[c->I + i]; 
         for(int j = 0; j < 8; j++){

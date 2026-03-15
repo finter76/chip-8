@@ -69,7 +69,7 @@ void cmp_inequal_reg(chip8 *c, unsigned char vx, unsigned char vy);
 void set_i(chip8 *c, unsigned short address);
 void jump_offset(chip8 *c, unsigned short address);
 void rand_vx(chip8 *c, unsigned char vx, unsigned short value);
-void display(chip8 *c, unsigned char vx, unsigned char vy, unsigned char n);
+void draw_sprite(chip8 *c, unsigned char vx, unsigned char vy, unsigned char n);
 void cmp_nibble_vx_equal(chip8 *c, unsigned char vx);
 void cmp_nibble_vx_inequal(chip8 *c, unsigned char vx);
 void get_delay(chip8 *c, unsigned char vx);
