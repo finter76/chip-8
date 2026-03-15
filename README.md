@@ -2,6 +2,11 @@ AUDIO DA FINIRE
 
 ROM CONSIGLIATE: https://github.com/JamesGriffin/CHIP-8-Emulator
 
+FONTI:
+https://en.wikipedia.org/wiki/CHIP-8
+http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
+https://www.youtube.com/watch?v=1N8DqgSgnhE
+
 # 🕹️ CHIP-8 Emulator
 
 Un emulatore CHIP-8 scritto in C con SDL2, capace di eseguire ROM originali come Space Invaders, Pong e Tetris.
