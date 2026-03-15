@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include "chip8.h"
 
@@ -24,7 +23,6 @@ int main(int argc, char** argv){
         fetch(&c);
         execute(&c);
     
-         usleep(100000);// Attendo 0.1 secondi, altrimenti sarebbe troppo veloce
     }
 
     return 0;
