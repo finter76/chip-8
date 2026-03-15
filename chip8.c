@@ -335,27 +335,29 @@ void xor_vx_vy(chip8 *c, unsigned char vx, unsigned char vy){
     c->V[vx] = c->V[vx] ^ c->V[vy];
 }
 void add_vx_vy(chip8 *c, unsigned char vx, unsigned char vy){
-    if(c->V[vx] + c->V[vy] > 255) c->V[0xF] = 1;
-    c->V[vx] += c->V[vy];
+    unsigned short res = c->V[vx] + c->V[vy];
+    c->V[vx] = res & 0xFF;
+    c->V[0xF] = res > 255 ? 1 : 0;
 }
 void sub_vx_vy(chip8 *c, unsigned char vx, unsigned char vy){
-    if(c->V[vx] >= c->V[vy]) c->V[0xF] = 1;
+    unsigned char flag = c->V[vx] >= c->V[vy] ? 1 : 0;
     c->V[vx] -= c->V[vy];
+    c->V[0xF] = flag;
 }
-
 void shiftR_vx_vy(chip8 *c, unsigned char vx){ 
-    c->V[0xF] = c->V[vx] & 0x01;
+    unsigned char flag = c->V[vx] & 0x01;
     c->V[vx] >>= 1;
-    
+    c->V[0xF] = flag;    
 }
 void sub_vy_vx(chip8 *c, unsigned char vx, unsigned char vy){
-    if(c->V[vx] < c->V[vy]) c->V[0xF] = 1;
+    unsigned char flag = c->V[vy] >= c->V[vx] ? 1 : 0;
     c->V[vx] = c->V[vy] - c->V[vx];
+    c->V[0xF] = flag;
 }
 void shiftL_vx_vy(chip8 *c, unsigned char vx){
-    c->V[0xF] = c->V[vx] & 0x80 ? 1 : 0;
+    unsigned char flag = (c->V[vx] & 0x80) ? 1 : 0;
     c->V[vx] <<= 1;
-    
+    c->V[0xF] = flag;
 }
 
 // Gruppo 9
@@ -382,20 +384,23 @@ void rand_vx(chip8 *c, unsigned char vx, unsigned short value){
 
 // Gruppo D
 void draw_sprite(chip8 *c, unsigned char vx, unsigned char vy, unsigned char n){
+    unsigned char x0 = c->V[vx];
+    unsigned char y0 = c->V[vy];
+    c->V[0xF] = 0;
+
     for(int i = 0; i < n; i++){
         const unsigned char buffer = c->memory[c->I + i]; 
         for(int j = 0; j < 8; j++){
-            const unsigned char selected_bit = buffer & (0x80 >> j) ? 0x1 : 0x0;
-            const unsigned char prec_val = c->gfx[((vy+i) % DISP_HEIGHT) * DISP_WIDTH + ((vx+j) % DISP_WIDTH)];
-            c->gfx[
-                    ((vy+i) % DISP_HEIGHT) * DISP_WIDTH + 
-                    ((vx + j) % DISP_WIDTH)
-                    ] 
-                ^= selected_bit; 
-            if(prec_val && !c->gfx[((vy+i) % DISP_HEIGHT) * DISP_WIDTH + ((vx+j) % DISP_WIDTH)])    
+            if(!(buffer & (0x80 >> j))) continue;
+            int px = (x0 + j) % DISP_WIDTH;
+            int py = (y0 + i) % DISP_HEIGHT;
+            if(c->gfx[py * DISP_WIDTH + px])
                 c->V[0xF] = 1;
+            c->gfx[py * DISP_WIDTH + px] ^= 1;
         } 
     }
+    c->draw_flag = 1;
+
 }
 
 // Gruppo E
@@ -411,12 +416,8 @@ void get_delay(chip8 *c, unsigned char vx){
     c->V[vx] = c->delay_timer;
 }
 void get_key(chip8 *c, unsigned char vx){
-    for(int i = 0; i < NUM_KEYS; i++){
-        if(c->key[i]){
-            c->V[vx] = i;
-            return;
-        } 
-    } 
+    c->waiting_key = 1;
+    c->waiting_key_reg = vx;
     c->pc -= 2;
 }
 void delay_timer(chip8 *c, unsigned char vx){

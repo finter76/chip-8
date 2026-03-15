@@ -39,6 +39,9 @@ typedef struct {
 
     unsigned short stack[STACK_SIZE]; // Stack per indirizzi di ritorno
     unsigned short sp; // Stack pointer
+    
+    unsigned char waiting_key;      // 1 se stiamo aspettando un tasto
+    unsigned char waiting_key_reg;  // quale registro Vx deve ricevere il valore
 } chip8;
 
 void init(chip8 *c);

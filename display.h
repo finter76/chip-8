@@ -4,7 +4,10 @@
 #include <SDL2/SDL.h>
 #include "chip8.h"
 
-#define SCALE 10
+#define SCALE 15
+#define FPS 60
+#define MILLISECS_PER_FRAME (1000/FPS)
+#define INSTRUCTIONS_PER_FRAME 12 
 
 typedef struct display{
     SDL_Window* window;
