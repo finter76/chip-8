@@ -13,6 +13,7 @@
 #define FONT_OFFSET 0x050
 #define ROM_OFFSET 0x200
 #define OPCODE_SIZE 2
+#define FONT_SIZE 5 
 
 typedef struct {
     unsigned char key[NUM_KEYS];

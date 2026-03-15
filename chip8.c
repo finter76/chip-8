@@ -297,13 +297,19 @@ void call(chip8 *c, unsigned short address){
 }
 
 // Gruppo 3
-void cmp_equal_const(chip8 *c, unsigned char vx, unsigned short value);
+void cmp_equal_const(chip8 *c, unsigned char vx, unsigned short value){
+    if(c->V[vx] == value) c->pc += 2;
+}
 
 // Gruppo 4
-void cmp_inequal_const(chip8 *c, unsigned char vx, unsigned short value);
+void cmp_inequal_const(chip8 *c, unsigned char vx, unsigned short value){
+    if(c->V[vx] != value) c->pc += 2;
+}
 
 // Gruppo 5
-void cmp_equal_reg(chip8 *c, unsigned char vx, unsigned char vy);
+void cmp_equal_reg(chip8 *c, unsigned char vx, unsigned char vy){
+    if(c->V[vx] == c->V[vy]) c->pc += 2;
+}
 
 // Gruppo 6
 void set_vx_value(chip8 *c, unsigned char vx, unsigned short value){
@@ -337,7 +343,7 @@ void sub_vx_vy(chip8 *c, unsigned char vx, unsigned char vy){
     c->V[vx] -= c->V[vy];
 }
 
-void shiftR_vx_vy(chip8 *c, unsigned char vx, unsigned char vy){ 
+void shiftR_vx_vy(chip8 *c, unsigned char vx){ 
     c->V[0xF] = c->V[vx] & 0x01;
     c->V[vx] >>= 1;
     
@@ -346,14 +352,16 @@ void sub_vy_vx(chip8 *c, unsigned char vx, unsigned char vy){
     if(c->V[vx] < c->V[vy]) c->V[0xF] = 1;
     c->V[vx] = c->V[vy] - c->V[vx];
 }
-void shiftL_vx_vy(chip8 *c, unsigned char vx, unsigned char vy){
+void shiftL_vx_vy(chip8 *c, unsigned char vx){
     c->V[0xF] = c->V[vx] & 0x80 ? 1 : 0;
     c->V[vx] <<= 1;
     
 }
 
 // Gruppo 9
-void cmp_inequal_reg(chip8 *c, unsigned char vx, unsigned char vy);
+void cmp_inequal_reg(chip8 *c, unsigned char vx, unsigned char vy){
+    if(c->V[vx] != c-> V[vy]) c->pc += 2;
+}
 
 // Gruppo A
 void set_i(chip8 *c, unsigned short address){
@@ -376,14 +384,26 @@ void rand_vx(chip8 *c, unsigned char vx, unsigned short value){
 void display(chip8 *c, unsigned char vx, unsigned char vy, unsigned char n);
 
 // Gruppo E
-void cmp_nibble_vx_equal(chip8 *c, unsigned char vx);
-void cmp_nibble_vx_inequal(chip8 *c, unsigned char vx);
+void cmp_nibble_vx_equal(chip8 *c, unsigned char vx){
+    if(c->key[c->V[vx]]) c->pc += 2;
+}
+void cmp_nibble_vx_inequal(chip8 *c, unsigned char vx){
+    if(!c->key[c->V[vx]]) c->pc += 2;
+}
 
 // Gruppo F
 void get_delay(chip8 *c, unsigned char vx){
     c->V[vx] = c->delay_timer;
 }
-void get_key(chip8 *c, unsigned char vx);
+void get_key(chip8 *c, unsigned char vx){
+    for(int i = 0; i < NUM_KEYS; i++){
+        if(c->key[i]){
+            c->V[vx] = i;
+            return;
+        } 
+    } 
+    c->pc -= 2;
+}
 void delay_timer(chip8 *c, unsigned char vx){
     c->delay_timer = c->V[vx];
 }
@@ -393,7 +413,25 @@ void sound_timer(chip8 *c, unsigned char vx){
 void add_i_vx(chip8 *c, unsigned char vx){
     c->I += c->V[vx];
 }
-void sprite_addr(chip8 *c, unsigned char vx);
-void set_BCD(chip8 *c, unsigned char vx);
-void reg_dump(chip8 *c, unsigned char vx);
-void reg_load(chip8 *c, unsigned char vx);
+// Guardo la cifra in c->V[vx] e metto il suo offset rispetto
+// FONT_OFFSET dentro c->I
+void sprite_addr(chip8 *c, unsigned char vx){
+    c->I = (c->V[vx] * FONT_SIZE) + FONT_OFFSET;
+}
+// Salva in memoria a partire da I, in codifica BCD, il valore di V[vx] (0-255)
+void set_BCD(chip8 *c, unsigned char vx){
+    c->memory[c->I] = c->V[vx] / 100;
+    
+    c->memory[c->I+1] = (c->V[vx] / 10) % 10;
+    c->memory[c->I+2] = c->V[vx] % 10;
+}
+void reg_dump(chip8 *c, unsigned char vx){
+    for(unsigned char i = 0; i <= vx; i++){
+        c->memory[c->I + i] = c->V[i];
+    }
+}
+void reg_load(chip8 *c, unsigned char vx){
+    for(unsigned char i = 0; i <= vx; i++){
+        c->V[i] = c->memory[c->I + i];
+    }
+}
