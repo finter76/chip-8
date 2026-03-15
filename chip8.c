@@ -168,7 +168,7 @@ void execute(chip8 *c){
                 break;        
                 
                 case 0x6:
-                    shiftR_vx_vy(c, VX, VY);
+                    shiftR_vx_vy(c, VX);
                 break;        
                        
                 case 0x7:
@@ -176,7 +176,7 @@ void execute(chip8 *c){
                 break;   
 
                 case 0xE:
-                    shiftL_vx_vy(c, VX, VY);
+                    shiftL_vx_vy(c, VX);
                 break;     
 
                 default:
@@ -381,7 +381,22 @@ void rand_vx(chip8 *c, unsigned char vx, unsigned short value){
 }
 
 // Gruppo D
-void display(chip8 *c, unsigned char vx, unsigned char vy, unsigned char n);
+void display(chip8 *c, unsigned char vx, unsigned char vy, unsigned char n){
+    for(int i = 0; i < n; i++){
+        const unsigned char buffer = c->memory[c->I + i]; 
+        for(int j = 0; j < 8; j++){
+            const unsigned char selected_bit = buffer & (0x80 >> j) ? 0x1 : 0x0;
+            const unsigned char prec_val = c->gfx[((vy+i) % DISP_HEIGHT) * DISP_WIDTH + ((vx+j) % DISP_WIDTH)];
+            c->gfx[
+                    ((vy+i) % DISP_HEIGHT) * DISP_WIDTH + 
+                    ((vx + j) % DISP_WIDTH)
+                    ] 
+                ^= selected_bit; 
+            if(prec_val && !c->gfx[((vy+i) % DISP_HEIGHT) * DISP_WIDTH + ((vx+j) % DISP_WIDTH)])    
+                c->V[0xF] = 1;
+        } 
+    }
+}
 
 // Gruppo E
 void cmp_nibble_vx_equal(chip8 *c, unsigned char vx){
