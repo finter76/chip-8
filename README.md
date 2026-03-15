@@ -1,4 +1,5 @@
 AUDIO DA FINIRE
+
 ROM CONSIGLIATE: https://github.com/JamesGriffin/CHIP-8-Emulator
 
 # 🕹️ CHIP-8 Emulator
