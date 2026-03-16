@@ -3,7 +3,8 @@
 #include "chip8.h"
 #include "input.h"
 #include "display.h"
-#include "time.h"
+#include "audio.h"
+#include <time.h>
 
 int main(int argc, char** argv){
     if(argc < 1) {
@@ -19,6 +20,8 @@ int main(int argc, char** argv){
 
     display d;
     init_display(&d);
+    
+    init_audio();
 
     FILE *rom = fopen(argv[1], "rb");
     if(!rom){
@@ -40,11 +43,12 @@ int main(int argc, char** argv){
             fetch(&c);
             execute(&c);
         }
-        
+            
         if(!c.waiting_key){
             if(c.delay_timer > 0) c.delay_timer--;
             if(c.sound_timer > 0) c.sound_timer--;
         }
+        update_audio(&c);
 
         if(c.draw_flag){
             rendering(&d, &c);
@@ -56,6 +60,7 @@ int main(int argc, char** argv){
             SDL_Delay(MILLISECS_PER_FRAME - frame_time);
     }
     
+    cleanup_audio();
     cleanup(&d);
 
     return 0;

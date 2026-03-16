@@ -7,7 +7,7 @@
 #define SCALE 15
 #define FPS 60
 #define MILLISECS_PER_FRAME (1000/FPS)
-#define INSTRUCTIONS_PER_FRAME 12 
+#define INSTRUCTIONS_PER_FRAME 15 
 
 typedef struct display{
     SDL_Window* window;
